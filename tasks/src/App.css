@@ -1,0 +1,13 @@
+.timeform, #deleteform{
+    display: none;
+}
+
+.row{
+    display: flex;
+    align-items: center;
+}
+i{
+    color: red;
+    margin-left: 10px;
+    cursor: pointer;
+}
