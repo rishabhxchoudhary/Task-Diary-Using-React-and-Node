@@ -9,7 +9,7 @@ in terminal 1:
 ```
 cd server
 npm i
-nodemon
+node index.js
 ```
 
 in terminal 2:
