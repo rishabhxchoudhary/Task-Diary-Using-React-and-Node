@@ -26,3 +26,5 @@ npm i
 ```
 npm start
 ```
+
+Now check at localhost:3000 in your browser.
