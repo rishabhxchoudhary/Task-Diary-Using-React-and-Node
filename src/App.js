@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { doc, setDoc, collection, deleteDoc, getDocs, addDoc  } from "firebase/firestore"; 
+import { doc, collection, deleteDoc, getDocs, addDoc  } from "firebase/firestore"; 
 import { db } from "./firebaseConfig";
 import './App.css'
 
@@ -15,55 +15,60 @@ function App() {
   var ampm = today.getHours() >= 12 ? 'PM' : 'AM';
   // var time = today.getHours() + ':' + today.getMinutes();
 
+  useEffect(()=>{
+    setTime( (today.getHours()% 12||12).toString().padStart(2,'0') + ':' + today.getMinutes().toString().padStart(2,'0') + ':' + today.getSeconds().toString().padStart(2,'0')+" "+ampm)
+  });
+  useEffect ( ()=>{
+    getPosts();
+  },[])
 
   const [time, setTime] = useState('');
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState("");
   
   const postCollectionRef = collection(db,"tasks");
+  const getPosts = async () =>{
+    console.log("Read");
+    const data = await getDocs(postCollectionRef);
+    let list = [];
 
-  useEffect(()=>{
-    const getPosts = async () =>{
-        const data = await getDocs(postCollectionRef);
-        let list = [];
-
-        function compare( a, b ) {
-          if ( a.data().time < b.data().time ){
-            return -1;
-          }
-          if ( a.data().time > b.data().time ){
-            return 1;
-          }
-          return 0;
-        }
-
-        const x = data.docs;
-        x.sort(compare);
-
-        x.map((i) => {
-          list.push(
-            <li>
-              <div className="container-fluid">
-                <p>
-                <div className="fw-bold d-inline-block">{i.data().time} :</div> {i.data().task}
-                <div className="d-inline-block ml-3">
-                  <i className="fa fa-solid fa-trash" onClick={()=>{handleRemove(i.id)}}></i>
-                </div>
-                </p>
-              </div>
-            </li>
-          )
-        });
-         setTasks(
-          <>
-          {list}
-          </>
-        )
-
+    function compare( a, b ) {
+      if ( a.data().time < b.data().time ){
+        return -1;
+      }
+      if ( a.data().time > b.data().time ){
+        return 1;
+      }
+      return 0;
     }
-    setTime( (today.getHours()% 12||12).toString().padStart(2,'0') + ':' + today.getMinutes().toString().padStart(2,'0') + ':' + today.getSeconds().toString().padStart(2,'0')+" "+ampm)
-    getPosts();
-});
+
+    const x = data.docs;
+    x.sort(compare);
+
+    x.map((i) => {
+      list.push(
+        <li>
+          <div className="container-fluid">
+            <p>
+            <div className="fw-bold d-inline-block">{i.data().time} :</div> {i.data().task}
+            <div className="d-inline-block ml-3">
+              <i className="fa fa-solid fa-trash" onClick={()=>{handleRemove(i.id)}}></i>
+            </div>
+            </p>
+          </div>
+        </li>
+      )
+    });
+     setTasks(
+      <>
+      {list}
+      </>
+    )
+
+}
+// getPosts();
+
+
 
 
   const handleSubmit = async (e) => {
@@ -76,12 +81,15 @@ function App() {
     }
     await addDoc(postCollectionRef, form);
     console.log("Document added");
+    getPosts();
     
   };
 
   const handleRemove = async (id) =>{
     const postDoc = doc(db,"tasks", id);
     await deleteDoc(postDoc);
+    console.log("Removed");
+    getPosts();
   }
 
   return (
