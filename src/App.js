@@ -33,13 +33,31 @@ function App() {
     let list = [];
 
     function compare( a, b ) {
-      if ( a.data().time < b.data().time ){
-        return -1;
+      if (( a.data().time.includes("AM") && b.data().time.includes("AM") ) || ( a.data().time.includes("PM") && b.data().time.includes("PM"))){
+        if ( (a.data().time.startsWith("12") && (b.data().time.startsWith("12") ) || ( !a.data().time.startsWith("12") && ( !b.data().time.startsWith("12") ) ) )){
+          if ( a.data().time < b.data().time ){
+            return -1;
+          }
+          if ( a.data().time > b.data().time ){
+            return 1;
+          }
+          return 0;
+        }
+        else if ( a.data().time.startsWith("12") ){
+          return -1;
+        }
+        else{
+          return 1;
+        }
       }
-      if ( a.data().time > b.data().time ){
-        return 1;
+      else{
+        if (a.data().time.includes("AM")){
+          return -1;
+        }
+        else{
+          return 1;
+        }
       }
-      return 0;
     }
 
     const x = data.docs;
